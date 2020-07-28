@@ -10,9 +10,10 @@ class QsbkSpider(scrapy.Spider):
     start_urls = ['https://www.qiushibaike.com/text/page/1/']
 
     def parse(self, response):
-
+        # 段子的路径url（不包含域名）
         article_list = response.xpath('//a[@class="contentHerf"]/@href').extract()
         for article in article_list:
+            # 段子的完整路径url
             article_url = base_url + article
             req = response.follow(url=article_url,
                                   callback=self.parse_article,
@@ -69,6 +70,7 @@ class QsbkSpider(scrapy.Spider):
         res = json.loads(response.body)['comments']
         # 评论数
         comments_num = res['total']
+        # 段子的所有评论
         comments_list = []
         for i in range(comments_num):
             # 将用户名和评论内容拼接起来放入list
@@ -80,13 +82,3 @@ class QsbkSpider(scrapy.Spider):
         item['comments_list'] = json.dumps(comments_list, ensure_ascii=False)
         yield item
 
-
-class Article():
-    def __init__(self, title, author, content, stats_time, heat, good_comments_list, comments_list):
-        self.title = title
-        self.author = author
-        self.content = content
-        self.stats_time = stats_time
-        self.heat = heat
-        self.good_comments_list = good_comments_list
-        self.comments_list = comments_list
